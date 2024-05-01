@@ -515,6 +515,33 @@ struct bt_conn_le_tx_power_report {
 	int8_t delta;
 };
 
+
+enum bt_conn_le_path_loss_zone {
+	BT_CONN_LE_PATH_LOSS_ZONE_INVALID = 0,
+	BT_CONN_LE_PATH_LOSS_ZONE_LOW = 1,
+	BT_CONN_LE_PATH_LOSS_ZONE_MIDDLE = 2,
+	BT_CONN_LE_PATH_LOSS_ZONE_HIGH = 3,
+};
+
+/** LE Path Loss Monitoring Threshold Change Report Structure*/
+struct bt_conn_le_path_loss_threshold_report {
+
+	/** Path Loss zone as documented in Core Spec. Version 5.4 Vol.4, Part E, 7.7.65.32. */
+	bt_conn_le_path_loss_zone zone_entered;
+
+	/**Current path loss in dBm */
+	uint8_t path_loss_dbm;
+};
+
+/** LE Path Loss Monitoring Parameters Structure */
+struct bt_conn_le_path_loss_reporting_parameters {
+	uint8_t high_threshold;
+	uint8_t high_hysteresis;
+	uint8_t low_threshold;
+	uint8_t low_hysteresis;
+	uint16_t min_time_spent;
+};
+
 /** @brief Passkey Keypress Notification type
  *
  *  The numeric values are the same as in the Core specification for Pairing
@@ -600,6 +627,30 @@ int bt_conn_le_get_remote_tx_power_level(struct bt_conn *conn,
 int bt_conn_le_set_tx_power_report_enable(struct bt_conn *conn,
 					  bool local_enable,
 					  bool remote_enable);
+
+/** @brief Set Path Loss Monitoring Parameters.
+ * 
+ *  Change the configuration for path loss threshold change events for a given conn handle.
+ * 
+ *  @param conn Connection object.
+ *  @param param Path Loss Monitoring parameters
+ * 
+ *  @return Zero on success or (negative) error code on failure.
+ */
+int bt_conn_le_set_path_loss_monitoring_parameters(struct bt_conn *conn,
+			const struct bt_conn_le_path_loss_reporting_parameters *param);
+
+/** @brief Enable or Disable Path Loss Monitoring. 
+ * 
+ * Enable or disable Path Loss Monitoring, which will decide whether Path Loss Threshold events
+ * are sent from the controller to the host.
+ * @param conn Connection Object.
+ * @param enable enable/disable path loss reporting.
+ * 
+ * @return Zero on success or (negative) error code on failure.'/'.
+*/
+int bt_conn_le_path_loss_reporting_enable(struct bt_conn *conn,
+                                          bool enable);
 
 /** @brief Update the connection parameters.
  *
