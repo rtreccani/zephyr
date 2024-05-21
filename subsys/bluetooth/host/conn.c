@@ -2866,9 +2866,9 @@ int bt_conn_le_get_tx_power_level(struct bt_conn *conn,
 					 &tx_power_level->max_level);
 	return err;
 }
-f
-int bt_conn_le_set_path_loss_reporting_parameters(struct bt_conn *conn,
-					struct bt_conn_le_path_loss_reporting_parameters *params)
+
+int bt_conn_le_set_path_loss_monitoring_parameters(struct bt_conn *conn,
+					const struct bt_conn_le_path_loss_reporting_parameters *params)
 {
 	int err;
 
@@ -2888,10 +2888,10 @@ int bt_conn_le_set_path_loss_reporting_parameters(struct bt_conn *conn,
 	cp->low_hysteresis = params->low_hysteresis;
 	cp->min_time_spent = params->min_time_spent;
 
-	return bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_PARAMETERS, buf, null);
+	return bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_PARAMETERS, buf, NULL);
 }
 
-int bt_conn_le_set_path_loss_reporting_enable(struct bt_conn *conn,
+int bt_conn_le_set_path_loss_monitoring_enable(struct bt_conn *conn,
 												bool reporting_enable)
 {
 	int err;
@@ -2907,7 +2907,7 @@ int bt_conn_le_set_path_loss_reporting_enable(struct bt_conn *conn,
 	cp->handle = sys_cpu_to_le16(conn->handle);
 	cp->enable = reporting_enable;
 
-	return bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_ENABLE, buf, null);
+	return bt_hci_cmd_send_sync(BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_ENABLE, buf, NULL);
 }
 
 int bt_conn_le_param_update(struct bt_conn *conn,

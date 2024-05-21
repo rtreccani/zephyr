@@ -527,7 +527,7 @@ enum bt_conn_le_path_loss_zone {
 struct bt_conn_le_path_loss_threshold_report {
 
 	/** Path Loss zone as documented in Core Spec. Version 5.4 Vol.4, Part E, 7.7.65.32. */
-	bt_conn_le_path_loss_zone zone_entered;
+	enum bt_conn_le_path_loss_zone zone_entered;
 
 	/**Current path loss in dBm */
 	uint8_t path_loss_dbm;
@@ -649,7 +649,7 @@ int bt_conn_le_set_path_loss_monitoring_parameters(struct bt_conn *conn,
  * 
  * @return Zero on success or (negative) error code on failure.'/'.
 */
-int bt_conn_le_path_loss_reporting_enable(struct bt_conn *conn,
+int bt_conn_le_set_path_loss_monitoring_enable(struct bt_conn *conn,
                                           bool enable);
 
 /** @brief Update the connection parameters.

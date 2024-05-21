@@ -178,19 +178,19 @@ static const char *tx_pwr_ctrl_phy2str(enum bt_conn_le_tx_power_phy phy)
 	}
 }
 
-static const char *plm_report_zone2str(uint8_t zone)
-{
-	switch (zone) {
-	case BT_CONN_LE_PATH_LOSS_ZONE_LOW:
-		return "Entered low zone";
-	case BT_CONN_LE_PATH_LOSS_ZONE_MIDDLE:
-		return "Entered middle zone";
-	case BT_CONN_LE_PATH_LOSS_ZONE_HIGH:
-		return "Entered high zone";
-	default:
-		return "Entered the twilight zone??";
-	}
-}
+// static const char *plm_report_zone2str(uint8_t zone)
+// {
+// 	switch (zone) {
+// 	case BT_CONN_LE_PATH_LOSS_ZONE_LOW:
+// 		return "Entered low zone";
+// 	case BT_CONN_LE_PATH_LOSS_ZONE_MIDDLE:
+// 		return "Entered middle zone";
+// 	case BT_CONN_LE_PATH_LOSS_ZONE_HIGH:
+// 		return "Entered high zone";
+// 	default:
+// 		return "Entered the twilight zone??";
+// 	}
+// }
 
 static const char *enabled2str(bool enabled)
 {
@@ -2873,6 +2873,12 @@ static int cmd_set_power_report_enable(const struct shell *sh, size_t argc, char
 
 #endif
 
+uint8_t str_to_uint8_t(char* in_str)
+{
+	uint16_t tmp = strtoul(in_str, NULL, 10);
+	return tmp < 255 ? tmp : 255;
+}
+
 #ifdef CONFIG_BT_CTLR_LE_PATH_LOSS_MONITORING_SUPPORT
 static int cmd_set_path_loss_reporting_parameters(const struct shell *sh, size_t argc, char *argv[])
 {
@@ -2885,33 +2891,35 @@ static int cmd_set_path_loss_reporting_parameters(const struct shell *sh, size_t
 		shell_error(sh, "Conn handle error, at least one connection is required.");
 		return -ENOEXEC;
 	}
-	const struct bt_conn_le_path_loss_reporting_parameters{
-		.high_threshold = argc[1];
-		.high_hysteresis = argc[2];
-		.low_threshold = argc[3];
-		.low_hysteresis = argc[4];
-		.min_time_spent = argc[5];
-	err = bt_conn_le_set_path_loss_monitoring_parameters(default_conn,
-								bt_conn_le_path_loss_reporting_parameters);
+	const struct bt_conn_le_path_loss_reporting_parameters params = {
+		.high_threshold = str_to_uint8_t(argv[1]),
+		.high_hysteresis = str_to_uint8_t(argv[2]),
+		.low_threshold = str_to_uint8_t(argv[3]),
+		.low_hysteresis = str_to_uint8_t(argv[4]),
+		.min_time_spent = str_to_uint8_t(argv[5]),
+	};
+	int err = bt_conn_le_set_path_loss_monitoring_parameters(default_conn,
+								&params);
+	return err;
 }
 
 static int cmd_set_path_loss_reporting_enable(const struct shell *sh, size_t argc, char *argv[])
 {
 	if(argc != 2){
 		shell_help(sh);
-		return SHELL_HELP_CMD_PRINTED;
+		return SHELL_CMD_HELP_PRINTED;
 	}
 	if (default_conn == NULL) {
 		shell_error(sh, "Conn handle error, at least one connection is required.");
 		return -ENOEXEC;
 	}
-	if(argv[2] == '0')
+	if(argv[2][0] == '0')
 	{
-		err = bt_conn_le_set_path_loss_reporting_enable(default_conn,
-														false);
-	} else if(argv[2] == '1'){
-		err = bt_conn_le_set_path_loss_reporting_enable(default_conn,
-														true)
+		return(bt_conn_le_set_path_loss_monitoring_enable(default_conn, false));
+	} else if(argv[2][0] == '1'){
+		return(bt_conn_le_set_path_loss_monitoring_enable(default_conn, true));
+	} else {
+		return -1;
 	}
 }
 #endif
@@ -4605,11 +4613,13 @@ SHELL_STATIC_SUBCMD_SET_CREATE(bt_cmds,
 	SHELL_CMD_ARG(read-local-tx-power, NULL, HELP_NONE, cmd_read_local_tx_power, 2, 0),
 	SHELL_CMD_ARG(set-power-report-enable, NULL, HELP_NONE, cmd_set_power_report_enable, 3, 0),
 #endif
-#if defined(CONFIG_BT_CTLR_LE_PATH_LOSS_MONITORING_SUPPORT)
-	SHELL_CMD_ARG(path-loss-monitoring-set-params, NULL, "", 
-	cmd_set_path_loss_reporting_parameters, 5, 0);
-	SHELL_CMD_ARG(path-loss-monitoring-enable, NULL, "",
-	cmd_set_path_loss_reporting_enable 1, 0);
+#if defined(CONFIG_BT_CTLR_LE_PATH_LOSS_MONITORING)
+	SHELL_CMD_ARG(path-loss-monitoring-set-params, NULL,
+			"[high threshold]" "[high hysteresis]" 
+	        "[low threshold]" "[low hysteresis]" "[dwell time]",
+	cmd_set_path_loss_reporting_parameters,6, 0),
+	SHELL_CMD_ARG(path-loss-monitoring-enable, NULL, "<enabled: 1, 0>",
+	cmd_set_path_loss_reporting_enable, 2, 0),
 #endif
 #if defined(CONFIG_BT_BROADCASTER)
 	SHELL_CMD_ARG(advertise, NULL,

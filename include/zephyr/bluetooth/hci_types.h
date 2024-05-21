@@ -616,10 +616,10 @@ struct bt_hci_cp_le_set_path_loss_reporting_parameters {
 struct bt_hci_cp_le_set_path_loss_reporting_enable {
 	uint16_t handle;
 	uint8_t enable;
-};
+} __packed;
 
-#define BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_PARAMETERS(BT_OGF_LE, 0x0078)
-#define BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_ENABLE(BT_OGF_LE, 0x0079)
+#define BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_PARAMETERS BT_OP(BT_OGF_LE, 0x0078)
+#define BT_HCI_OP_LE_SET_PATH_LOSS_REPORTING_ENABLE BT_OP(BT_OGF_LE, 0x0079)
 
 #define BT_HCI_CTL_TO_HOST_FLOW_DISABLE         0x00
 #define BT_HCI_CTL_TO_HOST_FLOW_ENABLE          0x01
@@ -641,14 +641,8 @@ struct bt_hci_handle_count {
 	uint16_t count;
 } __packed;
 
-#define BT_HCI_OP_HOST_NUM_COMPLETED_PACKETS    BT_OP(BT_OGF_BASEBAND, 0x0035) /* 0x0c35 */struct bt_hci_cp_le_read_tx_power_level {
-	uint16_t handle;
-	uint8_t  phy;
-} __packed;
-struct bt_hci_cp_le_read_tx_power_level {
-	uint16_t handle;
-	uint8_t  phy;
-} __packed;struct bt_hci_cp_host_num_completed_packets {
+#define BT_HCI_OP_HOST_NUM_COMPLETED_PACKETS    BT_OP(BT_OGF_BASEBAND, 0x0035) /* 0x0c35 */
+struct bt_hci_cp_host_num_completed_packets {
 	uint8_t  num_handles;
 	struct bt_hci_handle_count h[0];
 } __packed;
